@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -20,10 +21,10 @@ import domain.Person;
 public class UserInfo extends HttpServlet {
 
 	private EntityManager manager;
+	private EntityManagerFactory factory;
 
-	public UserInfo() {
-		super();
-		EntityManagerFactory factory = Persistence.createEntityManagerFactory("example");
+	public void init() {
+		this.factory = Persistence.createEntityManagerFactory("example");
 		this.manager = factory.createEntityManager();
 	}
 
@@ -32,7 +33,7 @@ public class UserInfo extends HttpServlet {
 		resp.setContentType("text/html");
 		PrintWriter out = resp.getWriter();
 		List<Person> resultList = manager.createQuery("Select a From Person a", Person.class).getResultList();
-		
+		out.println("<HTML>\n<BODY>\n");
 		out.println("<H1>Recapitulatif des informations</H1>\n");
 		for (Person p : resultList) {
 			out.println("<UL>\n");
@@ -47,9 +48,12 @@ public class UserInfo extends HttpServlet {
 	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		resp.setContentType("text/html");
-		String name = req.getParameter("name");
-		String fname = req.getParameter("firstname");
-		String mail = req.getParameter("mail");
-		manager.persist(new Person(name, fname, mail));
+		EntityTransaction tx = manager.getTransaction();
+		tx.begin();
+		manager.persist(new Person(req.getParameter("name"), req.getParameter("firstname"), req.getParameter("mail")));
+		tx.commit();
+		manager.close();
+		factory.close();
+		System.out.println(".. Personne ajoutée dans bdd");
 	}
 }
