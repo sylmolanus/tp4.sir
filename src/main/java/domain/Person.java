@@ -80,7 +80,7 @@ public class Person {
 		this.id = id;
 	}
 
-	@OneToMany(mappedBy = "person", cascade = CascadeType.PERSIST)
+	@OneToMany(cascade = CascadeType.PERSIST)
 	public List<Home> getResidences() {
 		return residences;
 	}
