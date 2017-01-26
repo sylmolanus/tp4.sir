@@ -35,6 +35,7 @@ public class UserInfo extends HttpServlet {
 		List<Person> resultList = manager.createQuery("Select a From Person a", Person.class).getResultList();
 		out.println("<HTML>\n<BODY>\n");
 		out.println("<H1>Recapitulatif des informations</H1>\n");
+		out.println(resultList.size());
 		for (Person p : resultList) {
 			out.println("<UL>\n");
 			out.println("<LI>Nom: " + p.getName() + "\n");
@@ -43,6 +44,7 @@ public class UserInfo extends HttpServlet {
 			out.println("</UL>\n");
 		}
 		out.println("</BODY></HTML>");
+		System.out.println(".. Personnes affichées");
 	}
 
 	@Override
@@ -52,8 +54,15 @@ public class UserInfo extends HttpServlet {
 		tx.begin();
 		manager.persist(new Person(req.getParameter("name"), req.getParameter("firstname"), req.getParameter("mail")));
 		tx.commit();
-		manager.close();
-		factory.close();
+		PrintWriter out = resp.getWriter();
+		out.println("<p>Une personne a été ajoutée</p>\n");
+		out.println("<UL>\n");
+		out.println("<LI>Nom: " + req.getParameter("name") + "\n");
+		out.println("<LI>Prenom: " + req.getParameter("firstname") + "\n");
+		out.println("<LI>Email: " + req.getParameter("mail") + "\n");
+		out.println("</UL>\n");
+		//manager.close();
+		//factory.close();
 		System.out.println(".. Personne ajoutée dans bdd");
 	}
 }
